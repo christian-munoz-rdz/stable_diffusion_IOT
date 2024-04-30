@@ -1,6 +1,11 @@
 # Stable Diffusion IOT
 
-![alt text](img/SDIOT.webp)
+### Integrantes:
+
+- Christian Geovany Muñoz Rodríguez
+- Gerson Ismael Flores Sánchez
+ 
+<img src="img/SDIOT.webp" width="400" height="400" align="center">
 
 ## Descripción
 
