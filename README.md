@@ -16,7 +16,7 @@ El proyecto se divide en  partes importantes:
 **1. Stable Diffusion**:  Es el modelo open source para generación de imágenes más popular. Además de ser de libre acceso, ha demostrado una calidad y eficiencia que no tiene nada que envidiarle a modelos clousure como DALL-E o Midjourney. Además, tiene capacidades de personalización muy interesantes y un gran soporte de la comunidad.
 Nuestro plan es desplegar este modelo como un servicio a través de una API, para que pueda ser utilizado por cualquier persona que quiera generar imágenes a partir de un prompt.
 
-**2. Arduino y sensores**: Para la parte de IoT, utilizaremos un Arduino con sensores de temperatura, humedad y luz. Estos sensores serán utilizados para alterar el prompt ingresado por el usuario, de manera que la imagen generada refleje las condiciones del ambiente en el que se encuentra el usuario. Nos hubiera gustado incorporar  geolocalización o visión computacional para una experiencia más inmersiva, pero por cuestiones de tiempo y recursos, decidimos limitarnos a estos sensores, por lo que este proyecto es una versión simplificada de una idea más grande que tenemos en mente.\
+**2. ESP32 y sensores**: Para la parte de IoT, utilizaremos un ESP32 con sensores de temperatura, humedad y luz. Estos sensores serán utilizados para alterar el prompt ingresado por el usuario, de manera que la imagen generada refleje las condiciones del ambiente en el que se encuentra el usuario. Nos hubiera gustado incorporar  geolocalización o visión computacional para una experiencia más inmersiva, pero por cuestiones de tiempo y recursos, decidimos limitarnos a estos sensores, por lo que este proyecto es una versión simplificada de una idea más grande que tenemos en mente.
 
 **3. Frontend**: Para la interfaz de usuario, utilizaremos una aplicación web sencilla que permita al usuario ingresar un prompt y visualizar la imagen generada. Además, se mostrarán los valores de los sensores en tiempo real, para que el usuario pueda ver cómo afectan a la imagen generada. Incluimos otro apartado donde el usuario podra elegir entre diferentes estilos de imagen para la generación de la misma.
 
@@ -50,7 +50,7 @@ Supongamos que el sensor de temperatura detecta que la habitación está muy cal
 
 ## Arquitectura
 
-La arquitectura del proyecto se divide en tres partes principales: el frontend, el backend y el Arduino.
+La arquitectura del proyecto se divide en tres partes principales: el frontend, el backend y el ESP32.
 
 **1. Frontend**: La interfaz de usuario se desarrollará con Vue.js, Bootstrap y Node.js.
 
@@ -61,6 +61,6 @@ La arquitectura del proyecto se divide en tres partes principales: el frontend, 
   
 Todo dependerá de la complejidad del despliegue y de los recursos que tengamos disponibles.
 
-**3. Arduino**: El Arduino se encargará de leer los valores de los sensores y enviarlos al backend a través de una conexión. Para la conexión, utilizaremos un módulo WiFi como el ESP32.
+**3. ESP32**: El ESP32 se encargará de leer los valores de los sensores y enviarlos al backend a través de una conexión. Para la conexión.
 
-![alt text](img/7.jpg)
+![alt text](img/7.png)
