@@ -64,3 +64,15 @@ Todo dependerá de la complejidad del despliegue y de los recursos que tengamos 
 **3. ESP32**: El ESP32 se encargará de leer los valores de los sensores y enviarlos al backend a través de una conexión. Para la conexión.
 
 ![alt text](img/7.png)
+
+# Pesentación
+
+![alt text](img/presentacion_1.jpg)
+
+![alt text](img/presentacion_2.jpg)
+
+![alt text](img/presentacion_3.jpg)
+
+![alt text](img/presentacion_4.jpg)
+
+![alt text](img/presentacion_5.jpg)
