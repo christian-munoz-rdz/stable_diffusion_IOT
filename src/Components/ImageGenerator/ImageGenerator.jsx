@@ -1,9 +1,45 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import './ImageGenerator.css'
 import default_image from '../Assets/default_image.svg'
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue, off } from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
 const ImageGenerator = () => {
 
+
+    const [humidity, setHumidity] = useState(0);
+    const [temperature, setTemperature] = useState(0);
+    const [brightness, setBrightness] = useState(0);
+    useEffect(() => {
+        const db = getDatabase();
+        const databaseRef = ref(db, 'Sensores');
+
+        const onDataChange = (snapshot) => {
+            const data = snapshot.val();
+            setHumidity(data.sensorHumedad);
+            setTemperature(data.sensorTemperatura);
+            setBrightness(data.sensorLuminosidad);
+        };
+
+        const databaseListener = onValue(databaseRef, onDataChange);
+
+        return () => {
+            off(databaseRef, 'value', databaseListener); // Detener la escucha del evento 'value'
+        };
+    }, []);
 
     const [image_url, setImageUrl] = useState("/");
 
@@ -12,11 +48,6 @@ const ImageGenerator = () => {
     const [loading, setLoading] = useState(false);
 
     const [style, setStyle] = useState("photorealism");
-
-        // Estados para las lecturas de sensores
-    const [humidity, setHumidity] = useState(Math.random() * 100);
-    const [temperature, setTemperature] = useState(Math.random() * 35);
-    const [brightness, setBrightness] = useState(Math.random() * 1000);
 
     // const [humidity, setHumidity] = useState(51);
     //const [temperature, setTemperature] = useState(80);
@@ -57,7 +88,6 @@ const ImageGenerator = () => {
         const brightnessDescription = getBrightnessDescription(brightness);
 
         const prompt = `${inputRef.current.value}  in a ${brightnessDescription} environment that has a ${temperatureDescription} weather and is ${humidityDescription}, ${style} style`;
-        console.log(prompt);
 
         setLoading(true);
 
@@ -79,7 +109,6 @@ const ImageGenerator = () => {
             }
         );
         let data = await response.json();
-        console.log(data);
         let data_array = data.data;
         setImageUrl(data_array[0].url);
         setLoading(false);
