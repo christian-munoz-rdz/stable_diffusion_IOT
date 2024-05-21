@@ -1,78 +1,248 @@
 # Stable Diffusion IOT
+<img src="img/SDIOT.png" align="center">
 
-### Integrantes:
+## Introducción
 
-- Christian Geovany Muñoz Rodríguez
-- Gerson Ismael Flores Sánchez
- 
-<img src="img/SDIOT.webp" width="400" height="400" align="center">
+Nuestro proyecto busca fusionar la inteligencia artificial generativa con los sistemas de IoT para crear una aplicación que genere imágenes  a partir de un prompt ingresado por el usuario, pero influenciado por las condiciones del ambiente percibidas por 3 sensores: temperatura, humedad y luz.
 
-## Descripción
-
-Este es un proyecto que busca fusionar la inteligencia artificial generativa con los sistemas de IoT para crear una aplicación que genere imágenes  a partir de un prompt ingresado por el usuario, pero alterado por las condiciones del ambiente. 
-
-El proyecto se divide en  partes importantes:
-
-**1. Stable Diffusion**:  Es el modelo open source para generación de imágenes más popular. Además de ser de libre acceso, ha demostrado una calidad y eficiencia que no tiene nada que envidiarle a modelos clousure como DALL-E o Midjourney. Además, tiene capacidades de personalización muy interesantes y un gran soporte de la comunidad.
-Nuestro plan es desplegar este modelo como un servicio a través de una API, para que pueda ser utilizado por cualquier persona que quiera generar imágenes a partir de un prompt.
-
-**2. ESP32 y sensores**: Para la parte de IoT, utilizaremos un ESP32 con sensores de temperatura, humedad y luz. Estos sensores serán utilizados para alterar el prompt ingresado por el usuario, de manera que la imagen generada refleje las condiciones del ambiente en el que se encuentra el usuario. Nos hubiera gustado incorporar  geolocalización o visión computacional para una experiencia más inmersiva, pero por cuestiones de tiempo y recursos, decidimos limitarnos a estos sensores, por lo que este proyecto es una versión simplificada de una idea más grande que tenemos en mente.
-
-**3. Frontend**: Para la interfaz de usuario, utilizaremos una aplicación web sencilla que permita al usuario ingresar un prompt y visualizar la imagen generada. Además, se mostrarán los valores de los sensores en tiempo real, para que el usuario pueda ver cómo afectan a la imagen generada. Incluimos otro apartado donde el usuario podra elegir entre diferentes estilos de imagen para la generación de la misma.
-
-## Interfaz de usuario
-
-![alt text](img/1.jpg)
-
-Planeamos que la interfaz de usuario sea lo más sencilla e intuitiva posible. El usuario podrá ingresar un prompt en un campo de texto y presionar un botón para generar la imagen. Además, podrá ver los valores de los sensores en tiempo real o lo más cercano a tiempo real posible. También podrá elegir entre diferentes estilos de imagen para la generación de la misma.
-
-## Funcionamiento
-
-El usuario ingresa un prompt en la interfaz de usuario y presiona un botón para generar la imagen. Como podemos ver en esta imagen que rescatamos de la descripción de la interfaz de usuario, el usuario solicita una imagen de un lago con montañas. Los censores de luminosidad y humedad muestran datos normales, sin embargo,  el usuario solicita una imagen en estilo anime y el sensor marca una temperatura de 2 grados. Esto nos da como resultado una imagen de un lago con montañas nevadas en estilo anime, debido a la baja temperatura y el estilo de imagen seleccionado.
-
-![alt text](img/2.jpg)
-
-Ahora, imaginemos que el usuario solicita que ahora el estilo de imagen sea renacentista. El resultado sería similar a la imagen anterior, pero con un estilo de pintura de la época del renacimiento.
-
-![alt text](img/3.jpg)
-
-Ahora, si el sensor de luminosidad detecta que la habitación está muy oscura, la imagen generada podría ser una versión más oscura de la imagen anterior, para reflejar las condiciones del ambiente.
-
-![alt text](img/4.jpg)
-
-Si el sensor de humedad detecta que la habitación está muy húmeda, la imagen generada podría ser una versión de la imagen anterior con lluvia.
-
-![alt text](img/5.jpg)
-
-Supongamos que el sensor de temperatura detecta que la habitación está muy caliente. La imagen generada reflejaría un ambiente cálido,  o de incendio, como se muestra en la imagen a continuación.
-
-![alt text](img/6.jpg)
+La web la pueden encontrar en el siguiente enlace: [Stable Diffusion IOT](https://rad-llama-f4889e.netlify.app/).
 
 ## Arquitectura
 
-La arquitectura del proyecto se divide en tres partes principales: el frontend, el backend y el ESP32.
+![alt text](img/arquitectura.png)
 
-**1. Frontend**: La interfaz de usuario se desarrollará con Vue.js, Bootstrap y Node.js.
+La arquitectura de nuestro proyecto funciona de la siguiente manera:
 
-**2. Backend**: El backend se desarrollará FastAPI, que es un framework de Python para la creación de APIs de manera rápida y sencilla. Aún no sabemos como desplegar el modelo de Stable Diffusion como un servicio, pero estamos investigando diferentes opciones. Por ejemplo:
+1. La aplicación web es la parte central del flujo de información. Pues aquí es donde se recibe la información de los sensores disponible en firebase. Además es donde el usuario ingresa el prompt y se muestra imagen generada por el modelo.
 
-- PaaS como Heroku, Netlify o Railway.
-- IaaS como AWS.
-  
-Todo dependerá de la complejidad del despliegue y de los recursos que tengamos disponibles.
+2. El ESP32 es el encargado de leer y procesar la información de los sensores y enviarla a la base de datos de Firebase.
 
-**3. ESP32**: El ESP32 se encargará de leer los valores de los sensores y enviarlos al backend a través de una conexión. Para la conexión.
+3. Firebase es la base de datos en la nube que almacena la información de los sensores y la actualiza en tiempo real. Además, es la encargada de enviar la información a la aplicación web.
 
-![alt text](img/7.png)
+4. El modelo de inteligencia artificial disponible en AWS Lambda es el encargado de recibir el prompt, generar la imagen y enviarla a la aplicación web.
 
-# Pesentación
+## Codigo Fuente
 
-![alt text](img/presentacion_1.jpg)
+Nuestro proyecto tiene una interfaz muy sencilla, por lo que sólo se basa en un componente de React que funciona de la siguiente manera:
 
-![alt text](img/presentacion_2.jpg)
+### Importaciones
 
-![alt text](img/presentacion_3.jpg)
+```javascript
+import React, { useRef, useState, useEffect } from 'react'
+import './ImageGenerator.css'
+import default_image from '../Assets/default_image.svg'
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue, off } from "firebase/database";
+```
+- `React` y varios hooks (`useRef`, `useState`, `useEffect`) de la biblioteca React.
+- Importa un archivo CSS para estilización.
+- Importa una imagen por defecto.
+- Importa funciones para inicializar y manejar Firebase.
 
-![alt text](img/presentacion_4.jpg)
+### Configuración de Firebase
 
-![alt text](img/presentacion_5.jpg)
+```javascript
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+```
+- Define la configuración para Firebase utilizando variables de entorno.
+- Inicializa la aplicación de Firebase con esta configuración.
+
+### Componente `ImageGenerator`
+
+```javascript
+const ImageGenerator = () => {
+    const [humidity, setHumidity] = useState(0);
+    const [temperature, setTemperature] = useState(0);
+    const [brightness, setBrightness] = useState(0);
+    
+    useEffect(() => {
+        const db = getDatabase();
+        const databaseRef = ref(db, 'Sensores');
+
+        const onDataChange = (snapshot) => {
+            const data = snapshot.val();
+            setHumidity(data.sensorHumedad);
+            setTemperature(data.sensorTemperatura);
+            setBrightness(data.sensorLuminosidad);
+        };
+
+        const databaseListener = onValue(databaseRef, onDataChange);
+
+        return () => {
+            off(databaseRef, 'value', databaseListener); 
+        };
+    }, []);
+```
+- Declara estados para `humidity`, `temperature` y `brightness`.
+- Usa `useEffect` para conectar a la base de datos de Firebase y actualizar estos estados cuando los datos cambian.
+
+### Estados y Referencias
+
+```javascript
+    const [image_url, setImageUrl] = useState("/");
+    let inputRef = useRef(null);
+    const [loading, setLoading] = useState(false);
+    const [style, setStyle] = useState("photorealism");
+
+    const styles = ["photorealism", "impressionism", "renaissance", "anime"];
+```
+- Define estados adicionales para `image_url`, `loading` y `style`.
+- Utiliza `useRef` para crear una referencia al campo de entrada de texto.
+
+### Funciones Descriptivas
+
+```javascript
+    const getHumidityDescription = (humidity) => {
+        if (humidity < 10) return "arid";
+        if (humidity < 20) return "very dry";
+        if (humidity < 30) return "dry";
+        if (humidity < 60) return "wet";
+        return "rainy";
+    };
+
+    const getTemperatureDescription = (temperature) => {
+        if (temperature < 5 ) return "freezing"; 
+        if (temperature < 10) return "cold";
+        if (temperature < 25) return "mild";
+        if (temperature < 35) return "hot";
+        return "super hot";
+    };
+
+    const getBrightnessDescription = (brightness) => {
+        if (brightness < 100) return "dark";
+        if (brightness < 300) return "dim";
+        if (brightness < 700) return "slightly bright";
+        return "super bright";
+    };
+```
+- Funciones para traducir los valores de los sensores en descripciones textuales.
+
+### Función de Generación de Imágenes
+
+```javascript
+    const ImageGenerator = async () => {
+        if (inputRef.current.value === "") {
+            return 0;
+        }
+        const humidityDescription = getHumidityDescription(humidity);
+        const temperatureDescription = getTemperatureDescription(temperature);
+        const brightnessDescription = getBrightnessDescription(brightness);
+
+        const prompt = `${inputRef.current.value} in a ${brightnessDescription} environment that has a ${temperatureDescription} weather and is ${humidityDescription}, ${style} style`;
+
+        setLoading(true);
+
+        const response = await fetch(
+            "https://sdxl.execute-api.mx.amazonaws.com/prod/generate-image",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer" + " " + process.env.REACT_APP_SD_API_KEY,
+                    "User-Agent": "Chrome", 
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    model: "sd-xl",
+                    n:1,
+                    size: "1024x1024"
+                }),
+            }
+        );
+        let data = await response.json();
+        let data_array = data.data;
+        setImageUrl(data_array[0].url);
+        setLoading(false);
+    }
+```
+- Define una función asíncrona para generar imágenes usando la API de nuestro modelo de stable diffusion.
+- Crea un prompt basado en la entrada del usuario y las descripciones de los sensores.
+- Hace una solicitud `fetch` a la API de para generar una imagen.
+- Actualiza el estado `image_url` con la URL de la imagen generada y gestiona el estado de carga.
+
+### Renderizado del Componente
+
+```javascript
+    return (
+        <div className='ai-image-generator'>
+            <div className="header">Stable <span> IOT </span> </div>
+            <div className="sensor-readings">
+                <div>Humedad: {humidity.toFixed(2)}%</div>
+                <div>Temperatura: {temperature.toFixed(2)}°C</div>
+                <div>Luminosidad: {brightness.toFixed(2)} cd/m²</div>
+            </div>
+            <div className="img-loading">
+                <div className="image"><img src={image_url==="/"?default_image:image_url} alt="" /></div>
+                <div className="loading">
+                    <div className={loading?"loading-bar-full":"loading-bar"}></div>
+                    <div className={loading?"loading-text":"display-none"}>Loading...</div>
+                </div>
+            </div>
+            <div className="style-selector">
+                {styles.map((s) => (
+                    <label key={s}>
+                        <input
+                            type="radio"
+                            value={s}
+                            checked={style === s}
+                            onChange={() => setStyle(s)}
+                        />
+                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </label>
+                ))}
+            </div>
+            <div className="search-box">
+                <input type="text" ref={inputRef} className= 'search-input' placeholder='Describe your image' />
+                <div className="generate-btn" onClick={()=>{ImageGenerator()}}>Generate</div>
+            </div>
+        </div>
+    )
+}
+
+export default ImageGenerator;
+```
+- Renderiza el componente, mostrando las lecturas de los sensores, una imagen (por defecto o generada), una barra de carga y un selector de estilo.
+- Proporciona una caja de búsqueda donde el usuario puede describir la imagen deseada.
+- Incluye un botón para generar la imagen basada en la descripción del usuario y el estilo seleccionado.
+
+
+
+## Guía de Usuario
+
+La aplicación es muy facil de usar, pues no requiere registro ni autenticación. Sólo se necesita ingresar a la página web y se mostrará la interfaz principal donde el usuario podrá ingresar un prompt, por ejemplo "A beautiful sunset in a forest". La aplicación enviará el prompt al modelo de inteligencia artificial y mostrará la imagen generada.
+
+![alt text](img/image-2.png)
+
+El usuario también podrá seleccionar el estilo de la imagen generada, entre los siguientes:
+
+- Fotorealista
+- Impresionista
+- Renacentista
+- Anime
+
+### Estilo Impresionista
+
+![alt text](img/image-3.png)
+
+### Estilo Renacentista
+
+![alt text](img/image-4.png)
+
+### Estilo Anime
+
+![alt text](img/image-5.png)
+
+Eso sí, los datos de los sensores dependen de nuestro dispositivo ESP32, por lo que aparte de necesitar estar conectado, la modificaciones del prompt dependerán de las condiciones del ambiente en el que se encuentre el dispositivo.
+
+
